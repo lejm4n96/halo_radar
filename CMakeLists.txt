@@ -8,6 +8,8 @@ find_package(catkin REQUIRED COMPONENTS
     marine_sensor_msgs
     rosbag
     roscpp
+    tf2
+    tf2_geometry_msgs
 )
 
 catkin_package(
