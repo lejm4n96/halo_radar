@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5.1)
 project(halo_radar)
 
 add_compile_options(-std=c++11)
@@ -8,9 +8,12 @@ find_package(catkin REQUIRED COMPONENTS
     marine_sensor_msgs
     rosbag
     roscpp
+    rospy
     tf2
     tf2_geometry_msgs
 )
+
+catkin_python_setup()
 
 catkin_package(
 #  INCLUDE_DIRS include
@@ -18,6 +21,10 @@ catkin_package(
    CATKIN_DEPENDS marine_radar_control_msgs marine_sensor_msgs rosbag
 #  DEPENDS system_lib
 )
+
+catkin_install_python(PROGRAMS
+  scripts/status_changer_node.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 include_directories(
   ${catkin_INCLUDE_DIRS}

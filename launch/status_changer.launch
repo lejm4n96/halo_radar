@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+
+    <arg name="change_state_topic" default="/HaloA/change_state"/>
+    <arg name="status" default="transmit" /> # Possible status transmit and standby
+
+    <node name="status_changer" pkg="halo_radar" type="status_changer_node.py" output="screen">
+        <remap from="~topic" to="$(arg change_state_topic)"  />
+        <param name="status" type="string" value="$(arg status)" />
+
+    </node>
+      
+</launch>
