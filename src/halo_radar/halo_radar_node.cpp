@@ -20,8 +20,8 @@ public:
     m_state_change_sub =
         n.subscribe(addresses.label + "/change_state", 10, &RosRadar::stateChangeCallback, this);
     m_heartbeatTimer = n.createTimer(ros::Duration(1.0), &RosRadar::hbTimerCallback, this);
-    ros::param::param<double>("~range_correction_factor", m_rangeCorrectionFactor, m_rangeCorrectionFactor);
-    ros::param::param<std::string>("~frameId", m_frame_id, m_frame_id);
+    ros::param::param<double>("~range_correction_factor", m_rangeCorrectionFactor, 1.024);
+    ros::param::param<std::string>("~frameId", m_frame_id, "radar");
 
     startThreads();
   }
@@ -180,8 +180,8 @@ public:
   ros::Subscriber m_state_change_sub;
   ros::Timer m_heartbeatTimer;
 
-  double m_rangeCorrectionFactor = 1.024;
-  std::string m_frame_id = "radar";
+  double m_rangeCorrectionFactor;
+  std::string m_frame_id;
 
   AngularSpeedEstimator m_estimator;
 };

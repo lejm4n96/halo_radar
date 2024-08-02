@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+    <arg name="namespace" default="radar_node" />
+    <arg name="range_correction_factor" default="1.024" />
+    <arg name="frameId" default="radar" />
+
+    <node name="$(arg namespace)" pkg="halo_radar" type="halo_radar" output="screen">
+        <param name="range_correction_factor" type="double" value="$(arg range_correction_factor)" />
+        <param name="frameId" type="string" value="$(arg frameId)" />
+
+    </node>
+
+</launch>
