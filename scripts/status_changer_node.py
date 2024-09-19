@@ -4,34 +4,31 @@ import rospy
 from marine_radar_control_msgs.msg import RadarControlValue
 
 class StatusChangerNode(object):
-    def __init__(self):
+    def __init__(self, config):
         self.node_name = rospy.get_name()
+        self.config = config
 
         # publisher
         self.pub = rospy.Publisher('~topic', RadarControlValue, queue_size=1)
         rospy.sleep(1)
 
-        self.status = rospy.get_param("~status")
-
         # Change the status
         self.change_status()
-        rospy.loginfo(f"Changed status to {self.status} and node shutting down")
-        rospy.signal_shutdown("")
 
     def change_status(self):
-        # Toggle the status
-        
-        # Create an publish the message
         msg = RadarControlValue()
-        msg.key = 'status'
-        msg.value = self.status
-
-        self.pub.publish(msg)
+        # Create an publish the message
+        for key, value in self.config.items():
+            msg.key = key
+            msg.value = str(value)
+            self.pub.publish(msg)
+            rospy.loginfo(f"Published {key}: {value} on {self.pub.resolved_name}")
 
 if __name__ == '__main__':
     try:
         rospy.init_node(StatusChangerNode.__name__)
-        n = StatusChangerNode()
+        config = rospy.get_param('~')
+        n = StatusChangerNode(config)
         rospy.spin()
     except rospy.ROSInterruptException:
         pass
