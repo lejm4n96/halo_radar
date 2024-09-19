@@ -2,12 +2,23 @@
 <launch>
 
     <arg name="change_state_topic" default="/HaloA/change_state"/>
-    <arg name="status" default="transmit" /> # Possible status transmit and standby
 
-    <node name="status_changer" pkg="halo_radar" type="status_changer_node.py" output="screen">
-        <remap from="~topic" to="$(arg change_state_topic)"  />
-        <param name="status" type="string" value="$(arg status)" />
+    <node name="HaloA_status_changer_node" pkg="halo_radar" type="status_changer_node.py" output="screen">
+        <remap from="~topic" to="HaloA/change_state"  />
+        <rosparam>
+            status: transmit
+            range: 50
+            mode: harbor
+        </rosparam>
+    </node>
 
+    <node name="HaloB_status_changer_node" pkg="halo_radar" type="status_changer_node.py" output="screen">
+        <remap from="~topic" to="HaloB/change_state"  />
+        <rosparam>
+            status: transmit
+            range: 100
+            mode: offshore
+        </rosparam>
     </node>
       
 </launch>
