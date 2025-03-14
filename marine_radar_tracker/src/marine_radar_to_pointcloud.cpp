@@ -55,16 +55,18 @@ void radarSectorCallback(const marine_sensor_msgs::RadarSectorConstPtr &msg)
 
 int main(int argc, char* argv[])
 {
-  ros::init(argc, argv, "marine_radar_to_pointcloud");
+  rclcpp::init(argc, argv, "marine_radar_to_pointcloud");
 
-  ros::NodeHandle nh, pnh("~");
+  //ros::NodeHandle nh, pnh("~");
+  auto node = rclcpp::Node::make_shared("radar_to_pointcloud");
 
   detection_threshold = pnh.param("detection_threshold", 0.0);
 
-  ros::Subscriber radar_subscriber = nh.subscribe("radar_data", 50, &radarSectorCallback);
+  //ros::Subscriber radar_subscriber = nh.subscribe("radar_data", 50, &radarSectorCallback);
+  rclcpp::Subscription radar_subscriber = create_subscription<>("radar_data", 10, std::bind(&MinimalSubscriber::&radarSectorCallback, this, _1));
 
   pointcloud_publisher = pnh.advertise<pcl::PointCloud<pcl::PointXYZI> >("pointcloud", 10);
     
-  ros::spin();
+  //ros::spin();
   return 0;
 }    

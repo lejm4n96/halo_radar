@@ -41,7 +41,7 @@ struct BoundingBox
 class Blob
 {
 public:
-  Blob(ros::Time stamp, double resolution):stamp_(stamp), resolution_(resolution)
+  Blob(rclcpp::Time stamp, double resolution):stamp_(stamp), resolution_(resolution)
   {
 
   }
@@ -118,7 +118,7 @@ public:
     return 0.0;
   }
 
-  ros::Time timestamp() const
+  rclcpp::Time timestamp() const
   {
     return stamp_;
   }
@@ -126,7 +126,7 @@ public:
 private:
   std::vector<grid_map::Position> points_;
   std::vector<grid_map::Position> perimeter_points_;
-  ros::Time stamp_;
+  rclcpp::Time stamp_;
   double resolution_;
   double total_intensity_ = 0.0;
   grid_map::Position position_sum_ = grid_map::Position(0.0, 0.0);
@@ -147,7 +147,7 @@ public:
   }
 
   // clears older blobs and returns true if blobs remaining
-  bool update(ros::Time current_time)
+  bool update(rclcpp::Time current_time)
   {
     // detect restart of sim or data replay
     if(!blobs_.empty() && blobs_.back()->timestamp() > current_time)
@@ -174,7 +174,7 @@ public:
     double total_weight = 0.0;
     for(auto b: blobs_)
     {
-      auto weight = 1.0 - (blobs_.back()->timestamp()-b->timestamp()).toSec()/history_.toSec();
+      auto weight = 1.0 - (blobs_.back()->timestamp()-b->timestamp()).seconds()/history_.seconds();
       if(weight > 0.0)
       {
         ret += b->centroid()*weight;
@@ -193,7 +193,7 @@ public:
     double total_weight = 0.0;
     for(auto b: blobs_)
     {
-      auto weight = 1.0 - (blobs_.back()->timestamp()-b->timestamp()).toSec()/history_.toSec();
+      auto weight = 1.0 - (blobs_.back()->timestamp()-b->timestamp()).seconds()/history_.seconds();
       if(weight > 0.0)
       {
         ret += b->effectiveRadius()*weight;
@@ -216,11 +216,11 @@ public:
     return blobs_.size();
   }
 
-  ros::Time latestUpdate() const
+  rclcpp::Time latestUpdate() const
   {
     if(!blobs_.empty())
       return blobs_.back()->timestamp();
-    return ros::Time();
+    return rclcpp::Time();
   }
 
   uint16_t id() const
@@ -231,7 +231,7 @@ public:
 private:
   std::list<std::shared_ptr<Blob> > blobs_;
   uint16_t id_;
-  ros::Duration history_ = ros::Duration(10.0);
+  rclcpp::Duration history_ = rclcpp::Duration::from_seconds(10.0);
 };
 
 } // namespace marine_radar_tracker
