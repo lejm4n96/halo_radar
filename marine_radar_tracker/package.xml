@@ -19,6 +19,7 @@
   <depend>project11_msgs</depend>
   <depend>rclcpp</depend>
   <depend>rosbag2</depend>
+  <depend>sensor_msgs</depend>
   <depend>tf2</depend>
   <depend>tf2_ros</depend>
   <depend>visualization_msgs</depend>

@@ -9,10 +9,10 @@ set(ROS_DEPENDS
     project11_msgs
     rclcpp
     rosbag2
+    sensor_msgs
     tf2
     tf2_ros
     visualization_msgs
-    std_msgs #TODO for testing, remove
 )
 
 set(EXTERNAL_DEPENDS
