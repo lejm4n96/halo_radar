@@ -35,9 +35,7 @@ foreach(DEPEND ${ROS_DEPENDS} ${EXTERNAL_DEPENDS})
   find_package(${DEPEND} REQUIRED)
 endforeach(DEPEND)
 
-message(WARNING "PCL include directories: ${PCL_INCLUDE_DIRS}")
-message(WARNING "PCL libraries: ${PCL_LIBRARIES}")
-
+# Build marine_radar_tracker node: 
 #add_executable(${PROJECT_NAME} src/marine_radar_tracker.cpp)
 #target_include_directories(${PROJECT_NAME}
 #    PRIVATE 
@@ -52,20 +50,18 @@ message(WARNING "PCL libraries: ${PCL_LIBRARIES}")
 #add_dependencies(${PROJECT_NAME} ${marine_radar_tracker_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 #target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
+# Build marine_radar_to_pointcloud node: 
 add_executable(marine_radar_to_pointcloud src/marine_radar_to_pointcloud.cpp)
-#target_include_directories(marine_radar_to_pointcloud
-#    ${PCL_INCLUDE_DIRS}
-#)
 ament_target_dependencies(marine_radar_to_pointcloud
     ${ROS_DEPENDS}
     ${EXTERNAL_DEPENDS_LIB}
 )
 target_link_libraries(marine_radar_to_pointcloud ${PCL_LIBRARIES})
 
-#install(TARGETS ${PROJECT_NAME} marine_radar_to_pointcloud
-#        LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#        ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#        RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
-#)
+install(TARGETS marine_radar_to_pointcloud
+        LIBRARY DESTINATION lib/${PROJECT_NAME}
+        ARCHIVE DESTINATION lib/${PROJECT_NAME}
+        RUNTIME DESTINATION lib/${PROJECT_NAME}
+)
 
 ament_package()

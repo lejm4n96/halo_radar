@@ -87,18 +87,6 @@ protected:
 int main(int argc, char* argv[])
 {
   rclcpp::init(argc, argv);
-
-  //ros::NodeHandle nh, pnh("~");
-  //auto node = rclcpp::Node::make_shared("marine_radar_to_pointcloud");
-
-  //detection_threshold = pnh.param("detection_threshold", 0.0);
-
-  //ros::Subscriber radar_subscriber = nh.subscribe("radar_data", 50, &radarSectorCallback);
-  //rclcpp::Subscription radar_subscriber = node->create_subscription<marine_sensor_msgs::msg::RadarSector>(
-  //                                        "radar_data", 50, std::bind(&radarSectorCallback, _1));
-
-  //pointcloud_publisher = pnh.advertise<pcl::PointCloud<pcl::PointXYZI> >("pointcloud", 10);
-
   rclcpp::spin(std::make_shared<MarineRadarToPointcloud>());
   rclcpp::shutdown();
   return 0;
