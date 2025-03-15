@@ -20,8 +20,9 @@ class MarineRadarTracker : public rclcpp::Node
 {
 public:
   MarineRadarTracker() 
-  : Node("marine_radar_tracker") //, 
-    // tf_listener_(tf_buffer_), grid_map_({"intensity","latest","latest_age","previous","previous_age"})
+  : Node("marine_radar_tracker") , 
+    tf_listener_(tf_buffer_), 
+    grid_map_({"intensity", "latest", "latest_age", "previous", "previous_age"})
   {
     /*ros::NodeHandle nh, pnh("~");
 
@@ -84,9 +85,11 @@ private:
 
   void radarSectorCallback(const marine_sensor_msgs::msg::RadarSector &msg) const
   {
-    RCLCPP_INFO(this->get_logger(), "hi, I'm here");
-    
-    if(/*ros::Time::isSimTime() && */msg.header.stamp < last_time_)
+
+    // TODO: I have no idea what to do with simTime in ros2 and can't find a single
+    // scrap of documentation mentioning it. 
+    //if(ros::Time::isSimTime() && msg.header.stamp < last_time_)
+    if(msg.header.stamp < last_time_)
     {
       grid_map_.clearAll();
       last_target_scan_time_ = rclcpp::Time();
@@ -193,7 +196,7 @@ private:
     {
       grid_map_msgs::msg::GridMap message;
       grid_map::GridMapRosConverter::toMessage(grid_map_, {"intensity"}, message);
-      grid_map_publisher_->publish(message);
+      grid_map_publisher_.publish(message);
       last_publish_time_ = msg.header.stamp;
     }
 
