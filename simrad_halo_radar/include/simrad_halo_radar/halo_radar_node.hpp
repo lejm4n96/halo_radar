@@ -6,9 +6,9 @@
 #include <iostream>
 #include <future>
 #include "halo_radar.h"
-#include "marine_sensor_msgs/msg/radar_sector.h"
-#include "marine_radar_control_msgs/msg/radar_control_set.h"
-#include "marine_radar_control_msgs/msg/radar_control_value.h"
+#include "marine_sensor_msgs/msg/radar_sector.hpp"
+#include "marine_radar_control_msgs/msg/radar_control_set.hpp"
+#include "marine_radar_control_msgs/msg/radar_control_value.hpp"
 #include "nav_msgs/msg/odometry.hpp"
 #include "angular_speed_estimator.h"
 
@@ -16,9 +16,14 @@ using std::placeholders::_1;
 
 class RosRadar : public simrad_halo_radar::Radar
 {
-public: 
-    RosRadar(simrad_halo_radar::AddressSet const &addresses); //, rclcpp::Node::SharedPtr node); // : simrad_halo_radar::Radar(addresses);
-    
+public:
+    //RosRadar(rclcpp::Node::SharedPtr node, simrad_halo_radar::AddressSet const &addresses);
+  /*!
+   * \brief RosRadar  a brief description of the constructor
+   * \param addresses this is what the address does
+   */
+  RosRadar(simrad_halo_radar::AddressSet const &addresses); //, rclcpp::Node::SharedPtr node); // : simrad_halo_radar::Radar(addresses);
+
     // Parameters
     //double m_rangeCorrectionFactor_ = this->declare_parameter("~range_correction_factor");
     //std::string m_frame_id;
@@ -28,7 +33,7 @@ protected:
   void stateUpdated() override;
 
 private:
-    void stateChangeCallback(const marine_radar_control_msgs::RadarControlValue::ConstPtr &cv);
+  void stateChangeCallback(const marine_radar_control_msgs::msg::RadarControlValue::ConstPtr &cv);
 /*    void hbTimerCallback(const ros::TimerEvent &e);
     void createEnumControl(std::string const &name, std::string const &label, std::string const enums[],
                            marine_radar_control_msgs::RadarControlSet &rcs);

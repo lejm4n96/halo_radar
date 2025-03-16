@@ -32,18 +32,25 @@ int main(int argc, char **argv)
   std::vector<std::shared_ptr<RosRadar> > radars;
   std::vector<uint32_t> hostIPs;
 
-  if (node->has_parameter("~hostIPs"))
-    // ros::param::has("~hostIPs"))
-  {
-    std::vector<std::string> hostIPstrings;
-    //ros::param::get("~hostIPs", hostIPstrings);
-    // this only handles one!  what if there are multiple radars? 
-    // seems like before it returned a vector of strings, but now it just returns
-    // an rclcpp::Parameter...? can that hold multiple parameters? I'm so confused...
-    hostIPstrings.push_back(node->get_parameter("~hostIPs").as_string());
-    for (auto s: hostIPstrings)
-      hostIPs.push_back(simrad_halo_radar::ipAddressFromString(s));
-  }
+  // if (node->has_parameter("~hostIPs"))
+  //   // ros::param::has("~hostIPs"))
+  // {
+
+  std::vector<std::string> hostIPstrings;
+  node->declare_parameter("hostIPs", hostIPstrings);
+  node->get_parameter("hostIPs", hostIPstrings);
+
+  //ros::param::get("~hostIPs", hostIPstrings);
+  // this only handles one!  what if there are multiple radars?
+  // seems like before it returned a vector of strings, but now it just returns
+  // an rclcpp::Parameter...? can that hold multiple parameters? I'm so confused...
+
+
+
+  // hostIPstrings.push_back(node->get_parameter("~hostIPs").as_string());
+  for (auto s: hostIPstrings)
+    hostIPs.push_back(simrad_halo_radar::ipAddressFromString(s));
+  // }
 
   std::future<void> scanResult = std::async(std::launch::async, [&] {
     while(radars.empty())

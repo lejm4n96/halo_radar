@@ -26,11 +26,11 @@ RosRadar::RosRadar(simrad_halo_radar::AddressSet const &addresses)//, rclcpp::No
 }
 
 
-void RosRadar::processData(std::vector<simrad_halo_radar::Scanline> const &scanlines) override
+void RosRadar::processData(std::vector<simrad_halo_radar::Scanline> const &scanlines)
 {
   if(scanlines.empty())
     return;
-  marine_sensor_msgs::RadarSector rs;
+  marine_sensor_msgs::msg::RadarSector rs;
   rs.header.stamp = ros::Time::now();
   rs.header.frame_id = m_frame_id;
   rs.angle_start = 2.0*M_PI*(360-scanlines.front().angle)/360.0;
