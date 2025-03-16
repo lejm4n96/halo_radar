@@ -1,36 +1,39 @@
 #include "marine_radar_layer/marine_radar_layer.h"
-#include <pluginlib/class_list_macros.h>
-#include <geometry_msgs/PoseStamped.h>
+#include <pluginlib/class_list_macros.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
 #include <tf2/utils.h>
 
-PLUGINLIB_EXPORT_CLASS(marine_radar_layer::MarineRadarLayer, costmap_2d::Layer)
+PLUGINLIB_EXPORT_CLASS(marine_radar_layer::MarineRadarLayer, nav2_costmap_2d::Layer)
 
 namespace marine_radar_layer
 {
 
-MarineRadarLayer::MarineRadarLayer()
+MarineRadarLayer::MarineRadarLayer(): Node("")
 {
 
 }
 
 void MarineRadarLayer::onInitialize()
 {
-  ros::NodeHandle nh("~/" + name_);
+  //ros::NodeHandle nh("~/" + name_);
+  auto node = rclcpp::Node::make_shared("~/" + name_);
+  
   current_ = false;
-  default_value_ = costmap_2d::NO_INFORMATION;
+  default_value_ = nav2_costmap_2d::NO_INFORMATION;
   matchSize();
 
-  nh.param<float>("mark_threshold", m_mark_threshold, 8.0);
-  nh.param<float>("clear_threshold", m_clear_threshold, 2.0);
-  nh.param<float>("blanking_distance", m_blanking_distance, 4.0);
-  nh.param<float>("maximum_intensity", m_maximum_intensity, 16.0);
+  //nh.param<float>("mark_threshold", m_mark_threshold, 8.0);
+  //nh.param<float>("clear_threshold", m_clear_threshold, 2.0);
+  //nh.param<float>("blanking_distance", m_blanking_distance, 4.0);
+  //nh.param<float>("maximum_intensity", m_maximum_intensity, 16.0);
 
-  m_reconfigureServer = ReconfigureServerPtr(new ReconfigureServer(nh));
-  m_reconfigureServer->setCallback(std::bind(&MarineRadarLayer::reconfigureCallback, this, std::placeholders::_1, std::placeholders::_2));
+  //m_reconfigureServer = ReconfigureServerPtr(new ReconfigureServer(nh));
+  //m_reconfigureServer->setCallback(std::bind(&MarineRadarLayer::reconfigureCallback, this, std::placeholders::_1, std::placeholders::_2));
 
   m_global_frame_id = layered_costmap_->getGlobalFrameID();
 
-  m_radar_subscriber = nh.subscribe("radar", 50, &MarineRadarLayer::radarSectorCallback, this);
+  //m_radar_subscriber = nh.subscribe("radar", 50, &MarineRadarLayer::radarSectorCallback, this);
+  m_radar_subscriber = this->create_subscription("radar", 50, std::bind(&MarineRadarLayer::radarSectorCallback, this, _1));
 }
 
 void MarineRadarLayer::matchSize()
@@ -39,14 +42,14 @@ void MarineRadarLayer::matchSize()
   resizeMap(master->getSizeInCellsX(), master->getSizeInCellsY(), master->getResolution(), master->getOriginX(), master->getOriginY());
 }
 
-void MarineRadarLayer::reconfigureCallback(MarineRadarLayerConfig &config, uint32_t level)
+/*void MarineRadarLayer::reconfigureCallback(MarineRadarLayerConfig &config, uint32_t level)
 {
   if(enabled_ != config.enabled)
   {
     enabled_ = config.enabled;
     current_ = false;
   }
-}
+}*/
 
 void MarineRadarLayer::radarSectorCallback(const marine_sensor_msgs::RadarSectorConstPtr &msg)
 {
@@ -94,7 +97,7 @@ void MarineRadarLayer::updateBounds(double robot_x, double robot_y, double robot
       in.header.frame_id = s.second.sector->header.frame_id;
       in.pose.orientation.w = 1.0;
 
-      if(tf_->canTransform(m_global_frame_id, in.header.frame_id, in.header.stamp, ros::Duration(1.0)))
+      if(tf_->canTransform(m_global_frame_id, in.header.frame_id, in.header.stamp, rclcpp::Duration(1.0)))
       {
         tf_->transform(in, out, m_global_frame_id);
         s.second.x = out.pose.position.x;
@@ -146,7 +149,7 @@ void MarineRadarLayer::updateBounds(double robot_x, double robot_y, double robot
   }
 }
 
-void MarineRadarLayer::updateCosts(costmap_2d::Costmap2D& master_grid, int min_i, int min_j, int max_i, int max_j)
+void MarineRadarLayer::updateCosts(nav2_costmap_2d::Costmap2D& master_grid, int min_i, int min_j, int max_i, int max_j)
 {
   if (!enabled_)
     return;
@@ -156,7 +159,7 @@ void MarineRadarLayer::updateCosts(costmap_2d::Costmap2D& master_grid, int min_i
     for (int i = min_i; i < max_i; i++)
     {
       int index = getIndex(i, j);
-      if (costmap_[index] == costmap_2d::NO_INFORMATION)
+      if (costmap_[index] == nav2_costmap_2d::NO_INFORMATION)
         continue;
       master_grid.setCost(i,j, costmap_[index]);
     }

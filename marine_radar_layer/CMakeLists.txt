@@ -1,51 +1,53 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.14.4)
 project(marine_radar_layer)
 
 if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD 14) #TODO
+endif()
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-find_package(catkin REQUIRED COMPONENTS
-    costmap_2d
-    dynamic_reconfigure
-    pluginlib
-    roscpp
-    marine_sensor_msgs
-    geometry_msgs
-    tf2_geometry_msgs
-)
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+#find_package(std_msgs REQUIRED)
+find_package(nav2_costmap_2d REQUIRED)
+find_package(pluginlib REQUIRED)
+find_package(marine_sensor_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
 
-generate_dynamic_reconfigure_options(cfg/MarineRadarLayer.cfg)
-
-catkin_package(
-    CATKIN_DEPENDS
-        costmap_2d
-        dynamic_reconfigure
-        pluginlib
-        roscpp
-        marine_sensor_msgs
-        geometry_msgs
-        tf2_geometry_msgs
-    INCLUDE_DIRS include
-    LIBRARIES ${PROJECT_NAME}
-)
-
-include_directories(include ${catkin_INCLUDE_DIRS})
+# generate_dynamic_reconfigure_options(cfg/MarineRadarLayer.cfg)
 
 add_library(${PROJECT_NAME} src/marine_radar_layer.cpp)
-add_dependencies(${PROJECT_NAME} ${marine_radar_layer_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+ament_target_dependencies(${PROJECT_NAME} ${marine_radar_layer_EXPORTED_TARGETS})
+
+target_include_directories(${PROJECT_NAME} PUBLIC
+   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+   "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
+
+target_link_libraries(${PROJECT_NAME} PUBLIC
+  rclcpp::rclcpp
+  ${nav2_costmap_2d_TARGETS}
+  ${pluginlib_TARGETS}
+  ${marine_sensor_msgs_TARGETS}
+  ${geometry_msgs_TARGETS}
+  ${tf2_geometry_msgs_TARGETS}
+  #${std_msgs_TARGETS}
+)
 
 install(TARGETS ${PROJECT_NAME}
-        LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-        ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-        RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
+        LIBRARY DESTINATION lib/${PROJECT_NAME}
+        ARCHIVE DESTINATION lib/${PROJECT_NAME}
+        RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
 install(FILES costmap_plugins.xml
-        DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+        DESTINATION lib/${PROJECT_NAME}
 )
 
 install(DIRECTORY include/${PROJECT_NAME}/
-        DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+        DESTINATION lib/${PROJECT_NAME}
 )
+
+ament_package()
