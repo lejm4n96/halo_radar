@@ -6,12 +6,13 @@ class SimradHaloRadarNode : public rclcpp::Node
 public:
     SimradHaloRadarNode() : Node("simrad_halo_radar")
     {
-        //this->declare_parameter("~hostIPs", rclcpp::PARAMETER_STRING);
     }
 };
 
 std::shared_ptr<simrad_halo_radar::HeadingSender> headingSender;
 
+
+// This function appears to be unsued, so commenting out for now
 /*void odometryCallback(const nav_msgs::Odometry::ConstPtr msg)
 {
   if(headingSender)
@@ -36,14 +37,6 @@ int main(int argc, char **argv)
   node->declare_parameter("hostIPs", hostIPstrings);
   node->get_parameter("hostIPs", hostIPstrings);
 
-  //ros::param::get("~hostIPs", hostIPstrings);
-  // this only handles one!  what if there are multiple radars?
-  // seems like before it returned a vector of strings, but now it just returns
-  // an rclcpp::Parameter...? can that hold multiple parameters? I'm so confused...
-
-
-
-  // hostIPstrings.push_back(node->get_parameter("~hostIPs").as_string());
   for (auto s: hostIPstrings)
     hostIPs.push_back(simrad_halo_radar::ipAddressFromString(s));
 

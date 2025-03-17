@@ -21,39 +21,78 @@ class RosRadar : public simrad_halo_radar::Radar
 public:
 
   /*!
-   * \brief RosRadar  a brief description of the constructor
-   * \param addresses this is what the address does
+   * \brief Creates a RosRadar object for publishing Simrad Halo Radar data
+   * \param node SharedPtr to ros2 node,
+   * \param addresses vector of IP addresses of radars
    */
   RosRadar(rclcpp::Node::SharedPtr node, simrad_halo_radar::AddressSet const &addresses);
 
 protected: 
+  /*!
+   * \brief Process incoming scanlines from radar and publish RadarSector
+   * \param scanlines A radar scanline containing angle, range, and a vector of intensities
+   */
   void processData(std::vector<simrad_halo_radar::Scanline> const &scanlines) override;
+  
+  /*!
+   * \brief todo 
+   */
   void stateUpdated() override;
 
 private:
+  /*!
+   * \brief todo 
+   * \param cv 
+   */
   void stateChangeCallback(const marine_radar_control_msgs::msg::RadarControlValue::SharedPtr cv);
+  
+  /*!
+   * \brief Publish radar state for every heartbeat
+   */
   void hbTimerCallback();
-  void createEnumControl(std::string const &name, std::string const &label, std::string const enums[],
-                           marine_radar_control_msgs::msg::RadarControlSet &rcs);
-  void createFloatControl(std::string const &name, std::string const &label, float min_value, float max_value,
-                            marine_radar_control_msgs::msg::RadarControlSet &rcs);
-  void createFloatWithAutoControl(std::string const &name, std::string const &auto_name, std::string const &label,
-                                    float min_value, float max_value, marine_radar_control_msgs::msg::RadarControlSet &rcs);
 
-    // Pointer to the ROS node 
-    rclcpp::Node::SharedPtr node_;
-    
+  /*!
+   * \brief todo 
+   * \param name
+   * \param label description
+   * \param enums[]
+   * \param rcs
+   */
+  void createEnumControl(std::string const &name, std::string const &label, std::string const enums[],
+                         marine_radar_control_msgs::msg::RadarControlSet &rcs);
+  
+  /*!
+   * \brief todo 
+   * \param name
+   * \param label 
+   * \param min_value
+   * \param max_value
+   * \param rcs 
+   */
+  void createFloatControl(std::string const &name, std::string const &label, float min_value, float max_value,
+                          marine_radar_control_msgs::msg::RadarControlSet &rcs);
+  
+  /*!
+   * \brief todo
+   * \param name 
+   * \param auto_name
+   * \param label 
+   * \param min_value 
+   * \param max_value 
+   * \param rcs 
+   */
+  void createFloatWithAutoControl(std::string const &name, std::string const &auto_name, std::string const &label,
+                                  float min_value, float max_value, marine_radar_control_msgs::msg::RadarControlSet &rcs);
+
+    rclcpp::Node::SharedPtr node_;    
     rclcpp::Publisher<marine_sensor_msgs::msg::RadarSector>::SharedPtr m_data_pub;
     rclcpp::Publisher<marine_radar_control_msgs::msg::RadarControlSet>::SharedPtr m_state_pub;
     rclcpp::Subscription<marine_radar_control_msgs::msg::RadarControlValue>::SharedPtr m_state_change_sub;
-    
     rclcpp::TimerBase::SharedPtr m_heartbeatTimer;
     
     double m_rangeCorrectionFactor = 1.024;
     std::string m_frame_id = "radar";
-
     AngularSpeedEstimator m_estimator;
-
 };
 
 #endif

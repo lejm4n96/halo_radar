@@ -4,8 +4,6 @@ RosRadar::RosRadar(rclcpp::Node::SharedPtr node, simrad_halo_radar::AddressSet c
 : simrad_halo_radar::Radar(addresses)
 {
 
-    double a = 2.0;
-    //ros::NodeHandle n;
     this->node_ = node;
     
     node_->declare_parameter("range_correction_factor", rclcpp::PARAMETER_DOUBLE);
@@ -13,24 +11,16 @@ RosRadar::RosRadar(rclcpp::Node::SharedPtr node, simrad_halo_radar::AddressSet c
     node_->set_parameter(rclcpp::Parameter("range_correction_factor", this->m_rangeCorrectionFactor));
     node_->set_parameter(rclcpp::Parameter("frameId", this->m_frame_id));
 
-    //m_data_pub = n.advertise<marine_sensor_msgs::RadarSector>(addresses.label + "/data", 10);
     this->m_data_pub = node_->create_publisher<marine_sensor_msgs::msg::RadarSector>(addresses.label + "data", 10);
-    //m_state_pub = n.advertise<marine_radar_control_msgs::RadarControlSet>(addresses.label + "/state", 10);
     this->m_state_pub = node_->create_publisher<marine_radar_control_msgs::msg::RadarControlSet>(addresses.label + "state", 10);
-    //m_state_change_sub =
-    //    n.subscribe(addresses.label + "/change_state", 10, &RosRadar::stateChangeCallback, this);
-    this->m_state_change_sub = 
-      node_->create_subscription<marine_radar_control_msgs::msg::RadarControlValue>(
-        addresses.label + "change_state", 10, std::bind(&RosRadar::stateChangeCallback, this, _1)
-      );
+    this->m_state_change_sub = node_->create_subscription<marine_radar_control_msgs::msg::RadarControlValue>(
+                               addresses.label + "change_state", 10, std::bind(&RosRadar::stateChangeCallback, this, _1));
 
-    //m_heartbeatTimer = n.createTimer(rclcpp::Duration::from_seconds(1.0), &RosRadar::hbTimerCallback, this);
     m_heartbeatTimer = node_->create_wall_timer(std::chrono::seconds(1),
                         std::bind(&RosRadar::hbTimerCallback, this));
 
     startThreads();
 }
-
 
 void RosRadar::processData(std::vector<simrad_halo_radar::Scanline> const &scanlines)
 {
@@ -129,7 +119,7 @@ void RosRadar::hbTimerCallback()
 }
 
 void RosRadar::createEnumControl(std::string const &name, std::string const &label, std::string const enums[],
-                        marine_radar_control_msgs::msg::RadarControlSet &rcs)
+                                 marine_radar_control_msgs::msg::RadarControlSet &rcs)
 {
   if (m_state.find(name) != m_state.end())
   {
@@ -145,7 +135,7 @@ void RosRadar::createEnumControl(std::string const &name, std::string const &lab
 }
 
 void RosRadar::createFloatControl(std::string const &name, std::string const &label, float min_value, float max_value,
-                        marine_radar_control_msgs::msg::RadarControlSet &rcs)
+                                  marine_radar_control_msgs::msg::RadarControlSet &rcs)
 {
   if (m_state.find(name) != m_state.end())
   {
@@ -161,7 +151,7 @@ void RosRadar::createFloatControl(std::string const &name, std::string const &la
 }
 
 void RosRadar::createFloatWithAutoControl(std::string const &name, std::string const &auto_name, std::string const &label,
-                                float min_value, float max_value, marine_radar_control_msgs::msg::RadarControlSet &rcs)
+                                          float min_value, float max_value, marine_radar_control_msgs::msg::RadarControlSet &rcs)
 {
   if (m_state.find(name) != m_state.end() && m_state.find(auto_name) != m_state.end())
   {
