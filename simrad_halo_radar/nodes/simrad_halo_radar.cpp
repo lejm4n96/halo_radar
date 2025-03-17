@@ -1,14 +1,14 @@
 #include "halo_radar_node.hpp"
 
+
 class SimradHaloRadarNode : public rclcpp::Node
 {
 public:
     SimradHaloRadarNode() : Node("simrad_halo_radar")
     {
-        this->declare_parameter("~hostIPs", rclcpp::PARAMETER_STRING);
+        //this->declare_parameter("~hostIPs", rclcpp::PARAMETER_STRING);
     }
 };
-
 
 std::shared_ptr<simrad_halo_radar::HeadingSender> headingSender;
 
@@ -27,14 +27,10 @@ int main(int argc, char **argv)
 {
   rclcpp::init(argc, argv);
   //auto node = rclcpp::Node::make_shared("simrad_halo_radar");
-  auto node = std::make_shared<SimradHaloRadarNode>();
+  rclcpp::Node::SharedPtr node = std::make_shared<SimradHaloRadarNode>();
   
   std::vector<std::shared_ptr<RosRadar> > radars;
   std::vector<uint32_t> hostIPs;
-
-  // if (node->has_parameter("~hostIPs"))
-  //   // ros::param::has("~hostIPs"))
-  // {
 
   std::vector<std::string> hostIPstrings;
   node->declare_parameter("hostIPs", hostIPstrings);
@@ -50,7 +46,6 @@ int main(int argc, char **argv)
   // hostIPstrings.push_back(node->get_parameter("~hostIPs").as_string());
   for (auto s: hostIPstrings)
     hostIPs.push_back(simrad_halo_radar::ipAddressFromString(s));
-  // }
 
   std::future<void> scanResult = std::async(std::launch::async, [&] {
     while(radars.empty())
@@ -64,7 +59,7 @@ int main(int argc, char **argv)
         RCLCPP_WARN_STREAM(node->get_logger(), "No radars found!");
       for (auto a : as)
       {
-        radars.push_back(std::shared_ptr<RosRadar>(new RosRadar(a)));
+        radars.push_back(std::shared_ptr<RosRadar>(new RosRadar(node, a)));
         if(!headingSender)
           headingSender = std::shared_ptr<simrad_halo_radar::HeadingSender>(new simrad_halo_radar::HeadingSender(a.interface));
       }
