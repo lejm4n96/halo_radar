@@ -5,6 +5,9 @@ RosRadar::RosRadar(rclcpp::Node::SharedPtr node, simrad_halo_radar::AddressSet c
 {
 
     this->node_ = node;
+
+    // Check whether node is valid before proceeding
+    //if (rcl::rcl_node_is_valid(&node))
     
     node_->declare_parameter("range_correction_factor", rclcpp::PARAMETER_DOUBLE);
     node_->declare_parameter("frameId", rclcpp::PARAMETER_STRING);
