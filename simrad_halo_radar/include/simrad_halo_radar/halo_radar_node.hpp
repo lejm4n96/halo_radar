@@ -27,6 +27,7 @@ public:
    */
   RosRadar(rclcpp::Node::SharedPtr node, simrad_halo_radar::AddressSet const &addresses);
 
+  ~RosRadar();
 protected: 
   /*!
    * \brief Process incoming scanlines from radar and publish RadarSector
@@ -93,6 +94,7 @@ private:
     double m_rangeCorrectionFactor = 1.024;
     std::string m_frame_id = "radar";
     AngularSpeedEstimator m_estimator;
+    std::string m_radar_id;
 };
 
 #endif

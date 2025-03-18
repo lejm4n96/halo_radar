@@ -145,14 +145,14 @@ std::vector<AddressSet> scan(const std::vector<uint32_t> & addresses)
                 if(nbytes == sizeof(RadarReport_b201) && b201->id == 0xb201)
                 {
                     AddressSet asa;
-                    asa.label = "HaloA";
+                    asa.label = "halo_a";
                     asa.data = b201->addrDataA;
                     asa.send = b201->addrSendA;
                     asa.report = b201->addrReportA;
                     asa.interface = a;
                     ret.push_back(asa);
                     AddressSet asb;
-                    asb.label = "HaloB";
+                    asb.label = "halo_b";
                     asb.data = b201->addrDataB;
                     asb.send = b201->addrSendB;
                     asb.report = b201->addrReportB;
@@ -202,8 +202,18 @@ Radar::~Radar()
         const std::lock_guard<std::mutex> lock(m_exitFlagMutex);
         m_exitFlag = true;
     }
-    m_dataThread.join();
-    m_reportThread.join();
+    // Check if threads are joinable, output error to cerr if not
+    if (!m_dataThread.joinable()) {
+      std::cerr << "Error: Attempting to join data thread that was never started!" << std::endl;
+    } else {
+      m_dataThread.join();
+    }
+
+    if (!m_reportThread.joinable()) {
+      std::cerr << "Error: Attempting to join report thread that was never started!" << std::endl;
+    } else {
+      m_reportThread.join();
+    }
 }
 
 void Radar::startThreads()

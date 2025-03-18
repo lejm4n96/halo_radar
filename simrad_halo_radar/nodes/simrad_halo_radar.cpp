@@ -1,13 +1,13 @@
 #include "halo_radar_node.hpp"
 
 
-class SimradHaloRadarNode : public rclcpp::Node
-{
-public:
-    SimradHaloRadarNode() : Node("simrad_halo_radar")
-    {
-    }
-};
+// class SimradHaloRadarNode : public rclcpp::Node
+// {
+// public:
+//     SimradHaloRadarNode() : Node("simrad_halo_radar")
+//     {
+//     }
+// };
 
 std::shared_ptr<simrad_halo_radar::HeadingSender> headingSender;
 
@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 {
   rclcpp::init(argc, argv);
   //auto node = rclcpp::Node::make_shared("simrad_halo_radar");
-  rclcpp::Node::SharedPtr node = std::make_shared<SimradHaloRadarNode>();
+  rclcpp::Node::SharedPtr node = std::make_shared<rclcpp::Node>("simrad_halo_radar");
   
   std::vector<std::shared_ptr<RosRadar> > radars;
   std::vector<uint32_t> hostIPs;
@@ -40,26 +40,24 @@ int main(int argc, char **argv)
   for (auto s: hostIPstrings)
     hostIPs.push_back(simrad_halo_radar::ipAddressFromString(s));
 
-  std::future<void> scanResult = std::async(std::launch::async, [&] {
-    while(radars.empty())
+  while(radars.empty())
+  {
+    std::vector<simrad_halo_radar::AddressSet> as;
+    if(hostIPs.empty())
+      as = simrad_halo_radar::scan();
+    else
+      as = simrad_halo_radar::scan(hostIPs);
+    if(as.empty())
+      RCLCPP_WARN_STREAM(node->get_logger(), "No radars found!");
+    for (auto a : as)
     {
-      std::vector<simrad_halo_radar::AddressSet> as;
-      if(hostIPs.empty())
-        as = simrad_halo_radar::scan();
-      else
-        as = simrad_halo_radar::scan(hostIPs);
-      if(as.empty())
-        RCLCPP_WARN_STREAM(node->get_logger(), "No radars found!");
-      for (auto a : as)
-      {
-        radars.push_back(std::shared_ptr<RosRadar>(new RosRadar(node, a)));
-        if(!headingSender)
-          headingSender = std::shared_ptr<simrad_halo_radar::HeadingSender>(new simrad_halo_radar::HeadingSender(a.interface));
-      }
+      radars.push_back(std::shared_ptr<RosRadar>(new RosRadar(node, a)));
+      // if(!headingSender)
+      //   headingSender = std::shared_ptr<simrad_halo_radar::HeadingSender>(new simrad_halo_radar::HeadingSender(a.interface));
     }
-  });
+  }
 
-  rclcpp::spin(node); 
+  rclcpp::spin(node);
   rclcpp::shutdown();
   return 0;
 }
