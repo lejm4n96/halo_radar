@@ -145,14 +145,14 @@ std::vector<AddressSet> scan(const std::vector<uint32_t> & addresses)
                 if(nbytes == sizeof(RadarReport_b201) && b201->id == 0xb201)
                 {
                     AddressSet asa;
-                    asa.label = "HaloA";
+                    asa.label = "halo_a";
                     asa.data = b201->addrDataA;
                     asa.send = b201->addrSendA;
                     asa.report = b201->addrReportA;
                     asa.interface = a;
                     ret.push_back(asa);
                     AddressSet asb;
-                    asb.label = "HaloB";
+                    asb.label = "halo_b";
                     asb.data = b201->addrDataB;
                     asb.send = b201->addrSendB;
                     asb.report = b201->addrReportB;
