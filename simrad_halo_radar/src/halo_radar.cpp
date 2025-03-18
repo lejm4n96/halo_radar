@@ -202,8 +202,18 @@ Radar::~Radar()
         const std::lock_guard<std::mutex> lock(m_exitFlagMutex);
         m_exitFlag = true;
     }
-    m_dataThread.join();
-    m_reportThread.join();
+    // Check if threads are joinable, output error to cerr if not
+    if (!m_dataThread.joinable()) {
+      std::cerr << "Error: Attempting to join data thread that was never started!" << std::endl;
+    } else {
+      m_dataThread.join();
+    }
+
+    if (!m_reportThread.joinable()) {
+      std::cerr << "Error: Attempting to join report thread that was never started!" << std::endl;
+    } else {
+      m_reportThread.join();
+    }
 }
 
 void Radar::startThreads()
