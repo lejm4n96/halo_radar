@@ -6,20 +6,31 @@ RosRadar::RosRadar(rclcpp::Node::SharedPtr node, simrad_halo_radar::AddressSet c
 
     this->node_ = node;
     
-    node_->declare_parameter("range_correction_factor", rclcpp::PARAMETER_DOUBLE);
-    node_->declare_parameter("frameId", rclcpp::PARAMETER_STRING);
-    node_->set_parameter(rclcpp::Parameter("range_correction_factor", this->m_rangeCorrectionFactor));
-    node_->set_parameter(rclcpp::Parameter("frameId", this->m_frame_id));
+    node_->declare_parameter(addresses.label + ".range_correction_factor", this->m_rangeCorrectionFactor);
+    node_->get_parameter(addresses.label + ".range_correction_factor",this->m_rangeCorrectionFactor);
 
-    this->m_data_pub = node_->create_publisher<marine_sensor_msgs::msg::RadarSector>(addresses.label + "data", 10);
-    this->m_state_pub = node_->create_publisher<marine_radar_control_msgs::msg::RadarControlSet>(addresses.label + "state", 10);
+    node_->declare_parameter(addresses.label + ".frame_id", this->m_frame_id);
+    node_->get_parameter(addresses.label + ".frame_id",this->m_frame_id);
+
+
+    this->m_data_pub = node_->create_publisher<marine_sensor_msgs::msg::RadarSector>(addresses.label + "/data", 10);
+    this->m_state_pub = node_->create_publisher<marine_radar_control_msgs::msg::RadarControlSet>(addresses.label + "/state", 10);
     this->m_state_change_sub = node_->create_subscription<marine_radar_control_msgs::msg::RadarControlValue>(
-                               addresses.label + "change_state", 10, std::bind(&RosRadar::stateChangeCallback, this, _1));
+                               addresses.label + "/change_state", 10, std::bind(&RosRadar::stateChangeCallback, this, _1));
 
     m_heartbeatTimer = node_->create_wall_timer(std::chrono::seconds(1),
                         std::bind(&RosRadar::hbTimerCallback, this));
 
     startThreads();
+
+    m_radar_id = addresses.label;
+    RCLCPP_INFO(node_->get_logger(), "%s subnode started",m_radar_id.c_str());
+}
+
+RosRadar::~RosRadar()
+{
+  RCLCPP_INFO(node_->get_logger(), "%s subnode started",m_radar_id.c_str());
+
 }
 
 void RosRadar::processData(std::vector<simrad_halo_radar::Scanline> const &scanlines)
