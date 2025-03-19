@@ -52,7 +52,7 @@ struct AngularSpeedEstimator
         auto estimated_variance = variance + process_noise_variance*prediction_variance_factor;
 
         // measurement update
-        measured_angular_speed = 0.0; // angle_difference/(t-measurement_buffer.begin()->first); // TODO: seconds?
+        measured_angular_speed = angle_difference/(t.seconds()-measurement_buffer.begin()->first.seconds());
 
         auto k = estimated_variance/(estimated_variance+measurement_variance);
         prediction_error = measured_angular_speed-angular_speed;
