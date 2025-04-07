@@ -24,7 +24,7 @@ In the root of your workspace, run `colcon build`.
 |------------------|-----------|
 | `pointcloud`     | `sensor_msgs/PointCloud2` |
 
-#### Subscribers:
+#### Subscriptions:
 
 | Subscribed Topics | Data Type |
 |------------------|-----------|
