@@ -29,8 +29,8 @@ public:
 
   virtual void matchSize() override;
 
-  /**
-   * @brief Structure that corresponds to the parameters advertised by the 
+  /*!
+   * \brief Structure that corresponds to the parameters advertised by the 
    * MarineRadarLayer class. 
    */
   struct Parameters
@@ -40,18 +40,18 @@ public:
     float m_blanking_distance;
     float m_maximum_intensity;
     
-    /**
-     * @brief declares all the parameters and initializes all the stored variables
+    /*!
+     * \brief declares all the parameters and initializes all the stored variables
      * within the struct
-     * @param node  A pointer or reference to the node you want to use to
+     * \param node  A pointer or reference to the node you want to use to
      * initialize the parameters.
      */
     void init(rclcpp::Node * node);
   };
 
-  /**
-   * @brief gets a reference to the MarineRadarLayer::Parameters
-   * @return the parameters associated with the node
+  /*!
+   * \brief gets a reference to the MarineRadarLayer::Parameters
+   * \return the parameters associated with the node
    */
   const Parameters & getParams(){return parameters_;}
 
@@ -59,12 +59,6 @@ protected:
   Parameters parameters_;
 
 private:
-  //void reconfigureCallback(MarineRadarLayerConfig &config, uint32_t level);
-
-  //typedef dynamic_reconfigure::Server<MarineRadarLayerConfig> ReconfigureServer;
-  //typedef std::shared_ptr<ReconfigureServer> ReconfigureServerPtr;
-  //ReconfigureServerPtr m_reconfigureServer;
-
   void radarSectorCallback(const marine_sensor_msgs::msg::RadarSector::ConstSharedPtr &msg);
 
   std::list<marine_sensor_msgs::msg::RadarSector::ConstSharedPtr> m_sector_buffer;

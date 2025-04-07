@@ -36,20 +36,10 @@ MarineRadarLayer::MarineRadarLayer(): Node("~/" + name_)
 void MarineRadarLayer::onInitialize()
 {
   parameters_.init(this);
-  //ros::NodeHandle nh("~/" + name_);
-  //auto node = rclcpp::Node::make_shared("~/" + name_);
-  
+
   current_ = false;
   default_value_ = nav2_costmap_2d::NO_INFORMATION;
   matchSize();
-
-  //nh.param<float>("mark_threshold", m_mark_threshold, 8.0);
-  //nh.param<float>("clear_threshold", m_clear_threshold, 2.0);
-  //nh.param<float>("blanking_distance", m_blanking_distance, 4.0);
-  //nh.param<float>("maximum_intensity", m_maximum_intensity, 16.0);
-
-  //m_reconfigureServer = ReconfigureServerPtr(new ReconfigureServer(nh));
-  //m_reconfigureServer->setCallback(std::bind(&MarineRadarLayer::reconfigureCallback, this, std::placeholders::_1, std::placeholders::_2));
 
   m_global_frame_id = layered_costmap_->getGlobalFrameID();
 
@@ -62,15 +52,6 @@ void MarineRadarLayer::matchSize()
   Costmap2D* master = layered_costmap_->getCostmap();
   resizeMap(master->getSizeInCellsX(), master->getSizeInCellsY(), master->getResolution(), master->getOriginX(), master->getOriginY());
 }
-
-/*void MarineRadarLayer::reconfigureCallback(MarineRadarLayerConfig &config, uint32_t level)
-{
-  if(enabled_ != config.enabled)
-  {
-    enabled_ = config.enabled;
-    current_ = false;
-  }
-}*/
 
 void MarineRadarLayer::radarSectorCallback(const marine_sensor_msgs::msg::RadarSector::ConstSharedPtr &msg)
 {
