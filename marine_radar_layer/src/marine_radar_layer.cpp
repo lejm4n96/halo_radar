@@ -5,18 +5,39 @@
 
 PLUGINLIB_EXPORT_CLASS(marine_radar_layer::MarineRadarLayer, nav2_costmap_2d::Layer)
 
+
 namespace marine_radar_layer
 {
 
-MarineRadarLayer::MarineRadarLayer(): Node("")
-{
+template<typename T>
+void setupParam(T * variable, rclcpp::Node *node, std::string topic, T initial_val){
+  node->declare_parameter(topic, initial_val);
+  *variable =
+      node->get_parameter(topic).get_parameter_value().get<T>();
+}
 
+// a explicit overload for string is required for casting to work correctly
+void setupParam(std::string * variable, rclcpp::Node *node , std::string topic, std::string initial_val){
+  setupParam<std::string>(variable, node, topic, initial_val);
+}
+
+void MarineRadarLayer::Parameters::init(rclcpp::Node *node)
+{
+  setupParam(&m_clear_threshold, node, "clear_threshold", 2.0f);
+  setupParam(&m_mark_threshold, node, "mark_threshold", 8.0f);
+  setupParam(&m_blanking_distance, node, "blanking_distance", 4.0f);
+  setupParam(&m_maximum_intensity, node, "maximum_intensity", 16.0f);
+}
+
+MarineRadarLayer::MarineRadarLayer(): Node("~/" + name_)
+{
 }
 
 void MarineRadarLayer::onInitialize()
 {
+  parameters_.init(this);
   //ros::NodeHandle nh("~/" + name_);
-  auto node = rclcpp::Node::make_shared("~/" + name_);
+  //auto node = rclcpp::Node::make_shared("~/" + name_);
   
   current_ = false;
   default_value_ = nav2_costmap_2d::NO_INFORMATION;
@@ -32,8 +53,8 @@ void MarineRadarLayer::onInitialize()
 
   m_global_frame_id = layered_costmap_->getGlobalFrameID();
 
-  //m_radar_subscriber = nh.subscribe("radar", 50, &MarineRadarLayer::radarSectorCallback, this);
-  m_radar_subscriber = this->create_subscription("radar", 50, std::bind(&MarineRadarLayer::radarSectorCallback, this, _1));
+  m_radar_subscriber = this->create_subscription<marine_sensor_msgs::msg::RadarSector>(
+                       "radar", 50, std::bind(&MarineRadarLayer::radarSectorCallback, this, _1));
 }
 
 void MarineRadarLayer::matchSize()
@@ -51,7 +72,7 @@ void MarineRadarLayer::matchSize()
   }
 }*/
 
-void MarineRadarLayer::radarSectorCallback(const marine_sensor_msgs::RadarSectorConstPtr &msg)
+void MarineRadarLayer::radarSectorCallback(const marine_sensor_msgs::msg::RadarSector::ConstSharedPtr &msg)
 {
   std::lock_guard<std::mutex> lock(m_sector_buffer_mutex);
   m_sector_buffer.push_back(msg);
@@ -92,12 +113,12 @@ void MarineRadarLayer::updateBounds(double robot_x, double robot_y, double robot
         mapToWorld(0, 0, new_min_x, new_min_y);
         mapToWorld(getSizeInCellsX(), getSizeInCellsY(), new_max_x, new_max_y);
       }
-      geometry_msgs::PoseStamped in, out;
+      geometry_msgs::msg::PoseStamped in, out;
       in.header.stamp = s.second.sector->header.stamp;
       in.header.frame_id = s.second.sector->header.frame_id;
       in.pose.orientation.w = 1.0;
 
-      if(tf_->canTransform(m_global_frame_id, in.header.frame_id, in.header.stamp, rclcpp::Duration(1.0)))
+      if(tf_->canTransform(m_global_frame_id, in.header.frame_id, in.header.stamp, rclcpp::Duration::from_seconds(1.0)))
       {
         tf_->transform(in, out, m_global_frame_id);
         s.second.x = out.pose.position.x;
@@ -111,7 +132,7 @@ void MarineRadarLayer::updateBounds(double robot_x, double robot_y, double robot
           {
             double wx, wy;
             mapToWorld(i, j, wx, wy);
-            float cost = s.second.getValue(wx, wy, m_blanking_distance);
+            float cost = s.second.getValue(wx, wy, parameters_.m_blanking_distance);
             if(!std::isnan(cost))
             {
               setCost(i,j, cost*252);

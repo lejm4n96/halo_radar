@@ -6,6 +6,8 @@
 #include <nav2_costmap_2d/layered_costmap.hpp>
 #include <marine_sensor_msgs/msg/radar_sector.hpp>
 
+using std::placeholders::_1;
+
 namespace marine_radar_layer
 {
 
@@ -20,7 +22,41 @@ public:
 
   bool isDiscretized();
 
+  // Pure virtual functions in nav2_costmap_2d that must be implemented by inheriting classes
+  // Declaring functions here but currently provide no implementation
+  void reset();
+  bool isClearable();
+
   virtual void matchSize() override;
+
+  /**
+   * @brief Structure that corresponds to the parameters advertised by the 
+   * MarineRadarLayer class. 
+   */
+  struct Parameters
+  {
+    float m_clear_threshold;
+    float m_mark_threshold;
+    float m_blanking_distance;
+    float m_maximum_intensity;
+    
+    /**
+     * @brief declares all the parameters and initializes all the stored variables
+     * within the struct
+     * @param node  A pointer or reference to the node you want to use to
+     * initialize the parameters.
+     */
+    void init(rclcpp::Node * node);
+  };
+
+  /**
+   * @brief gets a reference to the MarineRadarLayer::Parameters
+   * @return the parameters associated with the node
+   */
+  const Parameters & getParams(){return parameters_;}
+
+protected:
+  Parameters parameters_;
 
 private:
   //void reconfigureCallback(MarineRadarLayerConfig &config, uint32_t level);
@@ -29,14 +65,9 @@ private:
   //typedef std::shared_ptr<ReconfigureServer> ReconfigureServerPtr;
   //ReconfigureServerPtr m_reconfigureServer;
 
-  //OnSetParametersCallbackHandle::SharedPtr set_param_res_;
-  //rcl_interfaces::msg::SetParametersResult paramCallback(const std::vector<rclcpp::Parameter> & parameters);
-  //void declareMarineRadarLayerParameters();
+  void radarSectorCallback(const marine_sensor_msgs::msg::RadarSector::ConstSharedPtr &msg);
 
-
-  void radarSectorCallback(const marine_sensor_msgs::RadarSectorConstPtr &msg);
-
-  std::list<marine_sensor_msgs::RadarSectorConstPtr> m_sector_buffer;
+  std::list<marine_sensor_msgs::msg::RadarSector::ConstSharedPtr> m_sector_buffer;
   std::mutex m_sector_buffer_mutex;
 
   struct PositionedSector
@@ -45,7 +76,7 @@ private:
     double yaw;
     double x;
     double y;
-    marine_sensor_msgs::RadarSectorConstPtr sector;
+    marine_sensor_msgs::msg::RadarSector::ConstSharedPtr sector;
     float getValue(double x, double y, double blanking_distance=0.0);
   };
 
@@ -53,16 +84,7 @@ private:
 
   std::string m_global_frame_id;
 
-  //ros::Subscriber m_radar_subscriber;
-  rclcpp::Subscription m_radar_subscriber;
-
-  //struct MarineRadarLayerParam
-  //{
-    float m_clear_threshold;
-    float m_mark_threshold;
-    float m_blanking_distance;
-    float m_maximum_intensity;
-  //} marine_radar_layer_param;
+  rclcpp::Subscription<marine_sensor_msgs::msg::RadarSector>::ConstSharedPtr m_radar_subscriber;
 
   double m_last_range = 0.0; // use to detect radar range change
 };
