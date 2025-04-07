@@ -46,6 +46,10 @@ If using the `rqt_marine_radar` plugin, the radar mode can be switched in the rq
 #### Subscriptions:
 
 
+| Topic   | Data Type                                  | 
+|---------|--------------------------------------------|
+| `todo` | `todo`           |
+
 ## Troubleshooting
 
 To make sure route is available: 
@@ -53,9 +57,3 @@ To make sure route is available:
 ```sudo route add -net 224.0.0.0 netmask 224.0.0.0 eth0```
 
 Switches and routers between the radar and the machine running the driver may interfere with multicast packets. Consult network equipment documentation or simply the network path.
-
-
-
-## Other stuff to make into a more coherent explanation
-
-
