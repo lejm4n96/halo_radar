@@ -26,8 +26,8 @@ public:
    * \param addresses vector of IP addresses of radars
    */
   RosRadar(rclcpp::Node::SharedPtr node, simrad_halo_radar::AddressSet const &addresses);
-
   ~RosRadar();
+  
 protected: 
   /*!
    * \brief Process incoming scanlines from radar and publish RadarSector
@@ -36,51 +36,51 @@ protected:
   void processData(std::vector<simrad_halo_radar::Scanline> const &scanlines) override;
   
   /*!
-   * \brief todo 
+   * \brief Publishes radar state on heartbeat. 
    */
   void stateUpdated() override;
 
 private:
   /*!
-   * \brief todo 
-   * \param cv 
+   * \brief Send command to radar to update state upon receiving a change state command.  
+   * \param cv RadarControlValue
    */
   void stateChangeCallback(const marine_radar_control_msgs::msg::RadarControlValue::SharedPtr cv);
   
   /*!
-   * \brief Publish radar state for every heartbeat
+   * \brief Publish radar state for every heartbeat.
    */
   void hbTimerCallback();
 
   /*!
-   * \brief todo 
-   * \param name
-   * \param label description
-   * \param enums[]
-   * \param rcs
+   * \brief Update RadarControlSet message with enum control
+   * \param name Name of RadarControlItem
+   * \param label Label of RadarControlItem
+   * \param enums[] Array of enums
+   * \param rcs RadarControlSet message to update
    */
   void createEnumControl(std::string const &name, std::string const &label, std::string const enums[],
                          marine_radar_control_msgs::msg::RadarControlSet &rcs);
   
   /*!
-   * \brief todo 
-   * \param name
-   * \param label 
-   * \param min_value
-   * \param max_value
-   * \param rcs 
+   * \brief Update RadarControlSet message with float control 
+   * \param name Name of RadarControlItem
+   * \param label Label of RadarControlItem
+   * \param min_value Minimum value of control parameter
+   * \param max_value Maximum value of control value
+   * \param rcs RadarControlSet to update 
    */
   void createFloatControl(std::string const &name, std::string const &label, float min_value, float max_value,
                           marine_radar_control_msgs::msg::RadarControlSet &rcs);
   
   /*!
-   * \brief todo
-   * \param name 
-   * \param auto_name
-   * \param label 
-   * \param min_value 
-   * \param max_value 
-   * \param rcs 
+   * \brief Update RadarControlSet message with float with auto control
+   * \param name Name of RadarControlItem
+   * \param auto_name 
+   * \param label Label of RadarControlItem 
+   * \param min_value Minimum value of control parameter
+   * \param max_value Maximum value of control parameter
+   * \param rcs RadarControlSet to update
    */
   void createFloatWithAutoControl(std::string const &name, std::string const &auto_name, std::string const &label,
                                   float min_value, float max_value, marine_radar_control_msgs::msg::RadarControlSet &rcs);

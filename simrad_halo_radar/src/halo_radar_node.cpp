@@ -3,12 +3,8 @@
 RosRadar::RosRadar(rclcpp::Node::SharedPtr node, simrad_halo_radar::AddressSet const &addresses)
 : simrad_halo_radar::Radar(addresses)
 {
-
     this->node_ = node;
 
-    // Check whether node is valid before proceeding
-    //if (rcl::rcl_node_is_valid(&node))
-    
     node_->declare_parameter(addresses.label + ".range_correction_factor", this->m_rangeCorrectionFactor);
     node_->get_parameter(addresses.label + ".range_correction_factor",this->m_rangeCorrectionFactor);
 
@@ -65,7 +61,10 @@ void RosRadar::processData(std::vector<simrad_halo_radar::Scanline> const &scanl
   auto angular_speed = m_estimator.update(rs.header.stamp,  rs.angle_start);
   double scan_time = 0.0;
   if(angular_speed != 0.0)
+  {
     scan_time = 2*M_PI/fabs(angular_speed);
+    RCLCPP_DEBUG(this->node_->get_logger(), "scan time updated: %.4f\n", scan_time);
+  }
 
   rs.scan_time = rclcpp::Duration::from_seconds(scan_time);
 
