@@ -68,10 +68,11 @@ The `simrad_halo_radar` node publishes data and state from each of the dual freq
 
 #### Parameters:
 
-| Parameter                                      | Data Type     | Default Value |
-|------------------------------------------------|---------------|---------------|
-| `<radar_freq_address>.frame_id`                | `std::string` | `"radar"`     |
-| `<radar_freq_address>.range_correction_factor` | `double`      | `1.024`       |
+| Parameter                                      | Data Type                 | Default Value |
+|------------------------------------------------|---------------------------|---------------|
+| `hostIPs`                                      | `std::vector<std::string> | N/A           |
+| `<radar_freq_address>.frame_id`                | `std::string`             | `"radar"`     |
+| `<radar_freq_address>.range_correction_factor` | `double`                  | `1.024`       |
 
 
 #### Radar State Parameters:
@@ -81,21 +82,21 @@ The following parameters are used to control the radar. They can be set either v
 | Parameter               | Description                 | Values                                            | 
 |-------------------------|-----------------------------|---------------------------------------------------|
 | `status`                | Radar state                 | `standby`, `transmit`                             |
-| `range`                 | Radar range [meters]        | `25 m`-`75,000 m`                                 |
+| `range`                 | Radar range [meters]        | `25 m` to `75,000 m`                                 |
 | `mode`                  | Radar mode                  | `custom`, `harbor`, `offshore`, `weather`, `bird` |
-| `gain`                  | Radar gain                  | `0`-`100`                                         |
-| `sea_clutter`           | Sea clutter mode            | `0`-`100`                                         |
-| `rain_clutter`          | Rain clutter mode           | `0`-`100`                                         |
+| `gain`                  | Radar gain                  | `0` to `100`                                         |
+| `sea_clutter`           | Sea clutter mode            | `0` to`100`                                         |
+| `rain_clutter`          | Rain clutter mode           | `0` to `100`                                         |
 | `noise_rejection`       | Noise rejection             | `off`, `low`, `medium`, `high`                    |
 | `target_expansion`      | Target expansion            | `off`, `low`, `medium`, `high`                    |
 | `inteference_rejection` | Interference rejection      | `off`, `low`, `medium`, `high`                    |
 | `target_separation`     | Target separation           | `off`, `low`, `medium`, `high`                    |
 | `scan_speed`            | Scan speed                  | `off`, `medium`, `high`                           |
 | `doppler_mode`          | Doppler mode                | `off`, `normal`, `approaching_only`               |
-| `doppler_speed`         | Doppler speed               | `0.5`-`15.95`                                     |
-| `antenna_height`        | Antenna height [meters]     | `0.0 m`-`30.175 m`                                |
-| `bearing_alignment`     | Bearing alignment [degrees] | `0.0&deg;`-`360.0&deg;`                           |
-| `sidelobe_suppression`  | Sidelobe suppression mode   | `0`-`100`                                         |
+| `doppler_speed`         | Doppler speed               | `0.5` to `15.95`                                     |
+| `antenna_height`        | Antenna height [meters]     | `0.0 m` to `30.175 m`                                |
+| `bearing_alignment`     | Bearing alignment [degrees] | `0.0 degrees` to `360.0 degrees`                           |
+| `sidelobe_suppression`  | Sidelobe suppression mode   | `0` to `100`                                         |
 | `lights`                | Halo lights                 | `off`, `low`, `medium`, `high`                    |
 
 
