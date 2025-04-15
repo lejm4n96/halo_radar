@@ -20,7 +20,7 @@ public:
 
     this->pointcloud_publisher_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("pointcloud", 10);
     this->radar_subscriber_ = this->create_subscription<marine_sensor_msgs::msg::RadarSector>(
-                             "radar_data", 50, std::bind(&MarineRadarToPointcloud::radarSectorCallback, this, _1));
+                             "data", 50, std::bind(&MarineRadarToPointcloud::radarSectorCallback, this, _1));
   }
 
 protected: 
