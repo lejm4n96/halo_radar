@@ -1,5 +1,7 @@
 # Convert marine radar data to grid_maps and track targets
 
+![](../docs/media/marine_radar_tracker/radar_pointcloud.gif)
+
 ## Installation
 
 ### Install Dependencies
