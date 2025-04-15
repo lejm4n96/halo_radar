@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <launch>
-    <node pkg="marine_radar_tracker" exec="marine_radar_to_pointcloud" name="marine_radar_to_pointcloud" namespace="marine_radar_to_pointcloud" />
+    <node pkg="marine_radar_tracker" exec="marine_radar_to_pointcloud" name="marine_radar_to_pointcloud" namespace="" />
 </launch>
