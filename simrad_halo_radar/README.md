@@ -68,11 +68,11 @@ The `simrad_halo_radar` node publishes data and state from each of the dual freq
 
 #### Parameters:
 
-| Parameter                                      | Data Type                 | Default Value |
-|------------------------------------------------|---------------------------|---------------|
-| `hostIPs`                                      | `std::vector<std::string> | N/A           |
-| `<radar_freq_address>.frame_id`                | `std::string`             | `"radar"`     |
-| `<radar_freq_address>.range_correction_factor` | `double`                  | `1.024`       |
+| Parameter                                      | Data Type                  | Default Value |
+|------------------------------------------------|----------------------------|---------------|
+| `hostIPs`                                      | `std::vector<std::string>` | N/A           |
+| `<radar_freq_address>.frame_id`                | `std::string`              | `"radar"`     |
+| `<radar_freq_address>.range_correction_factor` | `double`                   | `1.024`       |
 
 
 #### Radar State Parameters:
