@@ -58,10 +58,24 @@ ament_target_dependencies(marine_radar_to_pointcloud
 )
 target_link_libraries(marine_radar_to_pointcloud ${PCL_LIBRARIES})
 
+message("  Installing: " ${EXECUTABLES})
 install(TARGETS marine_radar_to_pointcloud #  ${PROJECT_NAME}
         LIBRARY DESTINATION lib/${PROJECT_NAME}
         ARCHIVE DESTINATION lib/${PROJECT_NAME}
         RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
+install(DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME}/
+)
+
+#############
+## testing ##
+#############
+
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
 
 ament_package()
