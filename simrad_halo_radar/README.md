@@ -24,7 +24,11 @@ Run `colcon build` in the root of your workspace to build.
 
 ## Usage
 
-```ros2 run simrad_halo_radar simrad_halo_radar```
+Run node with `ros2 run` or `ros2 launch`: 
+
+```ros2 run simrad_halo_radar simrad_halo_radar``` or 
+
+```ros2 launch simrad_halo_radar simrad_halo_radar.launch.xml```
 
 By default, the driver will scan all available interfaces. To restrict which interface(s) to use, specify the list of IP local addresses using the `hostIPs` parameter.
 
