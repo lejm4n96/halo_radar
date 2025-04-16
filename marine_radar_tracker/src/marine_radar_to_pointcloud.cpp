@@ -36,6 +36,9 @@ protected:
     else
       angle_increment = last_increment_;
 
+    std::cerr << "angle increment: ";
+    std::cerr << msg->angle_increment << std::endl;
+
     if(!msg->intensities.empty())
     {
       pcl::PointCloud<pcl::PointXYZI> pc;
