@@ -18,16 +18,20 @@ public:
     this->declare_parameter("detection_threshold", rclcpp::PARAMETER_DOUBLE);
     this->set_parameter(rclcpp::Parameter("detection_threshold", this->detection_threshold_));
 
-    this->pointcloud_publisher_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("pointcloud", 15);
+    this->pointcloud_publisher_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("pointcloud", 10);
     this->radar_subscriber_ = this->create_subscription<marine_sensor_msgs::msg::RadarSector>(
                              "data", 50, std::bind(&MarineRadarToPointcloud::radarSectorCallback, this, _1));
+  
   }
 
 protected: 
 
   void radarSectorCallback(const marine_sensor_msgs::msg::RadarSector::SharedPtr msg) 
   {
-    //ROS_INFO_STREAM("angle min: " << msg->angle_min << " angle max: " << msg->angle_max << " increment: " << msg->angle_increment);
+
+    //double angle_start = msg->angle_start;
+    //double angle_end = angle_start + msg->angle_increment*(msg->intensities.size()-1);
+    //RCLCPP_INFO_STREAM(rclcpp::get_logger("rclcpp"), "angle min: " << angle_start << " angle max: " << angle_end << " increment: " << msg->angle_increment);
 
     // hack for bug in earlier halo driver
     auto angle_increment = msg->angle_increment;
@@ -36,8 +40,8 @@ protected:
     else
       angle_increment = last_increment_;
 
-    std::cerr << "angle increment: ";
-    std::cerr << msg->angle_increment << std::endl;
+    //std::cerr << "time increment: ";
+    //std::cerr << msg->time_increment << std::endl;
 
     if(!msg->intensities.empty())
     {
@@ -58,7 +62,6 @@ protected:
 
         for(int j = 0; j < msg->intensities[i].echoes.size(); j++)
         {
-          //std::cerr << msg->intensities[i].echoes[j] << std::endl;
           if(msg->intensities[i].echoes[j] > detection_threshold_)
           {
             auto range = msg->range_min + j*range_increment;
@@ -68,7 +71,6 @@ protected:
             p.z = 0.0;
             p.intensity = msg->intensities[i].echoes[j];
             pc.push_back(p);
-            //std::cerr << p << std::endl;
           } 
         }
       }
