@@ -18,7 +18,7 @@ public:
     this->declare_parameter("detection_threshold", rclcpp::PARAMETER_DOUBLE);
     this->set_parameter(rclcpp::Parameter("detection_threshold", this->detection_threshold_));
 
-    this->pointcloud_publisher_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("pointcloud", 10);
+    this->pointcloud_publisher_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("pointcloud", 15);
     this->radar_subscriber_ = this->create_subscription<marine_sensor_msgs::msg::RadarSector>(
                              "radar_data", 50, std::bind(&MarineRadarToPointcloud::radarSectorCallback, this, _1));
   }
@@ -39,28 +39,34 @@ protected:
     if(!msg->intensities.empty())
     {
       pcl::PointCloud<pcl::PointXYZI> pc;
-      //pc.header.frame_id = msg->header.frame_id;        // Doing these when converting to PointCloud2 msg 
-      //pc.header.stamp = msg->header.stamp.toNSec()/1000; 
+      pc.header.frame_id = msg->header.frame_id;
+      uint64_t timestamp_microseconds = (static_cast<uint64_t>(msg->header.stamp.sec) * 1e9 +
+                                         static_cast<uint64_t>(msg->header.stamp.nanosec))/1000;
+      pc.header.stamp = timestamp_microseconds;
 
       for(int i = 0; i < msg->intensities.size(); i++)
       {
         double angle = msg->angle_start + i*angle_increment;
+        //double angle = msg->angle_start + i*msg->angle_increment;
+        
         double c = cos(angle);
         double s = sin(angle);
-        float range_increment = (msg->range_max - msg->range_min)/float(msg->intensities[i].echoes.size());
+        float range_increment = (msg->range_max - msg->range_min) / float(msg->intensities[i].echoes.size());
 
         for(int j = 0; j < msg->intensities[i].echoes.size(); j++)
         {
+          //std::cerr << msg->intensities[i].echoes[j] << std::endl;
           if(msg->intensities[i].echoes[j] > detection_threshold_)
           {
-            auto range = msg->range_min+ j*range_increment;
+            auto range = msg->range_min + j*range_increment;
             pcl::PointXYZI p;
             p.x = range*c;
             p.y = range*s;
             p.z = 0.0;
             p.intensity = msg->intensities[i].echoes[j];
             pc.push_back(p);
-          }
+            //std::cerr << p << std::endl;
+          } 
         }
       }
 
@@ -70,8 +76,6 @@ protected:
       // Maybe can eliminate this conversion step later on if pcl_ros is fully ported?
       auto pc2_ros_msg = std::make_shared<sensor_msgs::msg::PointCloud2>();
       pcl::toROSMsg(pc, *pc2_ros_msg);
-      pc2_ros_msg->header.frame_id = msg->header.frame_id;
-      pc2_ros_msg->header.stamp = msg->header.stamp;
       this->pointcloud_publisher_->publish(*pc2_ros_msg);
     }
   }
