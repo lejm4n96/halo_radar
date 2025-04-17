@@ -37,7 +37,7 @@ Run node with `ros2 run` or `ros2 launch`:
 
 | Subscribed Topics | Data Type                            |
 |-------------------|--------------------------------------|
-| `radar_data`      | `marine_sensor_msgs/msg/RadarSector` |
+| `data`      | `marine_sensor_msgs/msg/RadarSector` |
 
 #### Parameters:
 
