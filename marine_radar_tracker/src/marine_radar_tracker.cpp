@@ -1,4 +1,7 @@
-#pragma once
+/* APRIL 17, 2025: This node has NOT BEEN PORTED to ROS2 yet. Code is retained here in a partially-ported state
+but the tracker is being rewritten so this code is on hold for now. */
+
+/*#pragma once
 #include <rclcpp/rclcpp.hpp>
 #include <marine_sensor_msgs/msg/radar_sector.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
@@ -27,7 +30,7 @@ public:
   {
 
     tf_buffer_(this->get_clock());
-    /*this->declare_parameter("minimum_range", rclcpp::PARAMETER_DOUBLE);
+    this->declare_parameter("minimum_range", rclcpp::PARAMETER_DOUBLE);
     this->declare_parameter("detection_threshold", rclcpp::PARAMETER_DOUBLE);  
     this->declare_parameter("map_frame", rclcpp::PARAMETER_STRING);
     this->declare_parameter("grid_resolution_factor", rclcpp::PARAMETER_DOUBLE);
@@ -46,7 +49,7 @@ public:
     grid_map_.setFrameId(map_frame_);
     double interval = publish_interval_.seconds();
     interval = pnh.param("publish_interval", interval);
-    publish_interval_.from_seconds(interval);*/
+    publish_interval_.from_seconds(interval);
 
     //ros::NodeHandle nh, pnh("~");
 
@@ -368,3 +371,4 @@ int main(int argc, char* argv[])
   rclcpp::shutdown();
   return 0;
 }    
+*/
