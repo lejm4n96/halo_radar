@@ -1,18 +1,16 @@
 #pragma once
 #include <rclcpp/rclcpp.hpp>
 #include <marine_sensor_msgs/msg/radar_sector.hpp>
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
-#include <pcl_conversions/pcl_conversions.h>
 #include <sensor_msgs/msg/point_cloud2.hpp>
-//#include <pcl_ros/point_cloud.hpp> // not ported to ROS2
+#include <sensor_msgs/point_cloud2_iterator.hpp>
+#include <cmath>
 
 using std::placeholders::_1;
 using namespace std;
 
 class MarineRadarToPointcloud : public rclcpp::Node
 {
-public: 
+public:
   MarineRadarToPointcloud() : Node("marine_radar_to_pointcloud")
   {
     this->declare_parameter("detection_threshold", rclcpp::PARAMETER_DOUBLE);
@@ -20,69 +18,91 @@ public:
 
     this->pointcloud_publisher_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("pointcloud", 10);
     this->radar_subscriber_ = this->create_subscription<marine_sensor_msgs::msg::RadarSector>(
-                             "data", 50, std::bind(&MarineRadarToPointcloud::radarSectorCallback, this, _1));
-  
+        "data", 100, std::bind(&MarineRadarToPointcloud::radarSectorCallback, this, _1));
   }
 
-protected: 
-
-  void radarSectorCallback(const marine_sensor_msgs::msg::RadarSector::SharedPtr msg) 
+protected:
+  void radarSectorCallback(const marine_sensor_msgs::msg::RadarSector::SharedPtr msg)
   {
-
-    //double angle_start = msg->angle_start;
-    //double angle_end = angle_start + msg->angle_increment*(msg->intensities.size()-1);
-    //RCLCPP_INFO_STREAM(rclcpp::get_logger("rclcpp"), "angle min: " << angle_start << " angle max: " << angle_end << " increment: " << msg->angle_increment);
-
-    // hack for bug in earlier halo driver
-    auto angle_increment = msg->angle_increment;
-    if(angle_increment < 0.0)
-      last_increment_ = angle_increment;
-    else
-      angle_increment = last_increment_;
-
-    //std::cerr << "time increment: ";
-    //std::cerr << msg->time_increment << std::endl;
-
-    if(!msg->intensities.empty())
-    {
-      pcl::PointCloud<pcl::PointXYZI> pc;
-      pc.header.frame_id = msg->header.frame_id;
-      uint64_t timestamp_microseconds = (static_cast<uint64_t>(msg->header.stamp.sec) * 1e9 +
-                                         static_cast<uint64_t>(msg->header.stamp.nanosec))/1000;
-      pc.header.stamp = timestamp_microseconds;
-
-      for(int i = 0; i < msg->intensities.size(); i++)
-      {
-        double angle = msg->angle_start + i*angle_increment;
-        //double angle = msg->angle_start + i*msg->angle_increment;
-        
-        double c = cos(angle);
-        double s = sin(angle);
-        float range_increment = (msg->range_max - msg->range_min) / float(msg->intensities[i].echoes.size());
-
-        for(int j = 0; j < msg->intensities[i].echoes.size(); j++)
-        {
-          if(msg->intensities[i].echoes[j] > detection_threshold_)
-          {
-            auto range = msg->range_min + j*range_increment;
-            pcl::PointXYZI p;
-            p.x = range*c;
-            p.y = range*s;
-            p.z = 0.0;
-            p.intensity = msg->intensities[i].echoes[j];
-            pc.push_back(p);
-          } 
+    // First, count how many points we'll have to allocate memory efficiently
+    size_t point_count = 0;
+    for(size_t i = 0; i < msg->intensities.size(); i++) {
+      for(size_t j = 0; j < msg->intensities[i].echoes.size(); j++) {
+        if(msg->intensities[i].echoes[j] > detection_threshold_) {
+          point_count++;
         }
       }
-
-      // Convert PCL-type point cloud to ROS sensor_msgs PointCloud2 type
-      // This is because <pcl_ros/point_cloud.hpp> is not fully ported to ROS2 
-      // and ROS2 doesn't seem to accept the PCL-type point cloud as a publisher template 
-      // Maybe can eliminate this conversion step later on if pcl_ros is fully ported?
-      auto pc2_ros_msg = std::make_shared<sensor_msgs::msg::PointCloud2>();
-      pcl::toROSMsg(pc, *pc2_ros_msg);
-      this->pointcloud_publisher_->publish(*pc2_ros_msg);
     }
+
+    // Create PointCloud2 message
+    auto cloud_msg = std::make_shared<sensor_msgs::msg::PointCloud2>();
+    cloud_msg->header = msg->header;
+    cloud_msg->height = 1;
+    cloud_msg->width = point_count;
+
+    // Add fields
+    cloud_msg->fields.resize(4);
+    cloud_msg->fields[0].name = "x";
+    cloud_msg->fields[0].offset = 0;
+    cloud_msg->fields[0].datatype = sensor_msgs::msg::PointField::FLOAT32;
+    cloud_msg->fields[0].count = 1;
+
+    cloud_msg->fields[1].name = "y";
+    cloud_msg->fields[1].offset = 4;
+    cloud_msg->fields[1].datatype = sensor_msgs::msg::PointField::FLOAT32;
+    cloud_msg->fields[1].count = 1;
+
+    cloud_msg->fields[2].name = "z";
+    cloud_msg->fields[2].offset = 8;
+    cloud_msg->fields[2].datatype = sensor_msgs::msg::PointField::FLOAT32;
+    cloud_msg->fields[2].count = 1;
+
+    cloud_msg->fields[3].name = "intensity";
+    cloud_msg->fields[3].offset = 12;
+    cloud_msg->fields[3].datatype = sensor_msgs::msg::PointField::FLOAT32;
+    cloud_msg->fields[3].count = 1;
+
+    // Set up point format
+    cloud_msg->is_bigendian = false;
+    cloud_msg->point_step = 16; // 4 fields * 4 bytes
+    cloud_msg->row_step = cloud_msg->point_step * cloud_msg->width;
+    cloud_msg->is_dense = true;
+
+    // Allocate memory for the data
+    cloud_msg->data.resize(cloud_msg->row_step);
+
+    // Create point cloud iterators
+    sensor_msgs::PointCloud2Iterator<float> iter_x(*cloud_msg, "x");
+    sensor_msgs::PointCloud2Iterator<float> iter_y(*cloud_msg, "y");
+    sensor_msgs::PointCloud2Iterator<float> iter_z(*cloud_msg, "z");
+    sensor_msgs::PointCloud2Iterator<float> iter_intensity(*cloud_msg, "intensity");
+
+    // Fill the point cloud
+    for(size_t i = 0; i < msg->intensities.size(); i++) {
+      double angle = msg->angle_start + i * msg->angle_increment;
+      double c = cos(angle);
+      double s = sin(angle);
+      float range_increment = (msg->range_max - msg->range_min) / float(msg->intensities[i].echoes.size());
+
+      for(size_t j = 0; j < msg->intensities[i].echoes.size(); j++) {
+        if(msg->intensities[i].echoes[j] > detection_threshold_) {
+          auto range = msg->range_min + j * range_increment;
+          *iter_x = range * c;
+          *iter_y = range * s;
+          *iter_z = 0.0f;
+          *iter_intensity = msg->intensities[i].echoes[j];
+
+          // Move to next point
+          ++iter_x;
+          ++iter_y;
+          ++iter_z;
+          ++iter_intensity;
+        }
+      }
+    }
+
+    // Publish the point cloud
+    pointcloud_publisher_->publish(*cloud_msg);
   }
 
   rclcpp::Subscription<marine_sensor_msgs::msg::RadarSector>::SharedPtr radar_subscriber_;
@@ -92,11 +112,10 @@ protected:
   float last_increment_ = 0.0;
 };
 
-
 int main(int argc, char* argv[])
 {
   rclcpp::init(argc, argv);
   rclcpp::spin(std::make_shared<MarineRadarToPointcloud>());
   rclcpp::shutdown();
   return 0;
-}    
+}
