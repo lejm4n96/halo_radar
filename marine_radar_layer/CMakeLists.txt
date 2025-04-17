@@ -17,6 +17,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 
 add_library(${PROJECT_NAME} src/marine_radar_layer.cpp)
+pluginlib_export_plugin_description_file(marine_radar_layer costmap_plugins.xml)
 ament_target_dependencies(${PROJECT_NAME} ${marine_radar_layer_EXPORTED_TARGETS})
 
 target_include_directories(${PROJECT_NAME} PUBLIC
