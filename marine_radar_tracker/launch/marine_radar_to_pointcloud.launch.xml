@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <launch>
-    <node pkg="marine_radar_tracker" exec="marine_radar_to_pointcloud" name="marine_radar_to_pointcloud" namespace="" />
+    <node pkg="marine_radar_tracker" exec="marine_radar_to_pointcloud" name="marine_radar_to_pointcloud" namespace="">
+        <param-from="$(find-pkg-share marine_radar_tracker)/config/marine_radar_to_pointcloud.yaml" />
+    </node>
 </launch>
