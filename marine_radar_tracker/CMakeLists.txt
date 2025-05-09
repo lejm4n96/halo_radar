@@ -18,7 +18,7 @@ set(ROS_DEPENDS
 set(EXTERNAL_DEPENDS
 )
 
-set(EXTERNAL_DEPENDS_LIB 
+set(EXTERNAL_DEPENDS_LIB
 )
 
 if(NOT CMAKE_CXX_STANDARD)
@@ -35,10 +35,10 @@ foreach(DEPEND ${ROS_DEPENDS} ${EXTERNAL_DEPENDS})
   find_package(${DEPEND} REQUIRED)
 endforeach(DEPEND)
 
-# Build marine_radar_tracker node: 
+# Build marine_radar_tracker node:
 #add_executable(${PROJECT_NAME} src/marine_radar_tracker.cpp)
 #target_include_directories(${PROJECT_NAME}
-#    PRIVATE 
+#    PRIVATE
 #    "include/${PROJECT_NAME}/"
 #)
 #ament_target_dependencies(${PROJECT_NAME}
@@ -50,7 +50,7 @@ endforeach(DEPEND)
 #add_dependencies(${PROJECT_NAME} ${marine_radar_tracker_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 #target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
-# Build marine_radar_to_pointcloud node: 
+# Build marine_radar_to_pointcloud node:
 add_executable(marine_radar_to_pointcloud src/marine_radar_to_pointcloud.cpp)
 ament_target_dependencies(marine_radar_to_pointcloud
     ${ROS_DEPENDS}
@@ -66,6 +66,10 @@ install(TARGETS marine_radar_to_pointcloud #  ${PROJECT_NAME}
 )
 install(DIRECTORY
   launch
+  DESTINATION share/${PROJECT_NAME}/
+)
+install(DIRECTORY
+  config
   DESTINATION share/${PROJECT_NAME}/
 )
 
