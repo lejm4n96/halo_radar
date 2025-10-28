@@ -14,7 +14,12 @@ public:
   MarineRadarToPointcloud() : Node("marine_radar_to_pointcloud")
   {
     this->declare_parameter("detection_threshold", rclcpp::PARAMETER_DOUBLE);
+    this->declare_parameter("radar_height", 15.0); 
+
     this->set_parameter(rclcpp::Parameter("detection_threshold", this->detection_threshold_));
+    radar_height_ = this->get_parameter("radar_height").as_double();
+
+    RCLCPP_INFO(this->get_logger(), "Radar height above water: %f meters", radar_height_);
 
     this->pointcloud_publisher_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("pointcloud", 10);
     this->radar_subscriber_ = this->create_subscription<marine_sensor_msgs::msg::RadarSector>(
@@ -89,7 +94,7 @@ protected:
           auto range = msg->range_min + j * range_increment;
           *iter_x = range * c;
           *iter_y = range * s;
-          *iter_z = 0.0f;
+          *iter_z = -radar_height_;
           *iter_intensity = msg->intensities[i].echoes[j];
 
           // Move to next point
@@ -110,6 +115,7 @@ protected:
 
   float detection_threshold_ = 0.0;
   float last_increment_ = 0.0;
+  double radar_height_;
 };
 
 int main(int argc, char* argv[])

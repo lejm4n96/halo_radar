@@ -2,11 +2,37 @@
 
 <launch>
 
-  <arg name="radar_ns" default="" />
+  <arg name="base_ns" default="RADAR" />
+  <arg name="radar_height" default="10.0" />
+  
+  <group>
+    <arg name="radar_unit_a" default="HaloA" />
 
-  <node pkg="marine_radar_tracker" exec="marine_radar_to_pointcloud" name="marine_radar_to_pointcloud"
-        namespace="$(var radar_ns)">
-    <param from="$(find-pkg-share marine_radar_tracker)/config/marine_radar_to_pointcloud.yaml" />
-  </node>
+    <node pkg="marine_radar_tracker" exec="marine_radar_to_pointcloud" name="marine_radar_to_pointcloud_a"
+          namespace="$(var base_ns)/$(var radar_unit_a)">
+
+          <remap from="data" to="data"/>
+          <remap from="pointcloud" to="pointcloud_water_level"/>
+
+          <param name="radar_height" value="$(var radar_height)" />
+
+      <param from="$(find-pkg-share marine_radar_tracker)/config/marine_radar_to_pointcloud.yaml" />
+    </node>
+  </group>
+
+  <group>
+    <arg name="radar_unit_b" default="HaloB" />
+
+    <node pkg="marine_radar_tracker" exec="marine_radar_to_pointcloud" name="marine_radar_to_pointcloud_b"
+          namespace="$(var base_ns)/$(var radar_unit_b)">
+
+          <remap from="data" to="data"/>
+          <remap from="pointcloud" to="pointcloud_water_level"/>
+
+          <param name="radar_height" value="$(var radar_height)" />
+          
+          <param from="$(find-pkg-share marine_radar_tracker)/config/marine_radar_to_pointcloud.yaml" />
+    </node>
+  </group>
 
 </launch>
